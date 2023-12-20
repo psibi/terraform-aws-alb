@@ -36,6 +36,16 @@ resource "aws_lb" "this" {
     }
   }
 
+  dynamic "connection_logs" {
+    for_each = length(var.connection_logs) > 0 ? [var.connection_logs] : []
+
+    content {
+      enabled = try(connection_logs.value.enabled, try(connection_logs.value.bucket, null) != null)
+      bucket  = try(connection_logs.value.bucket, null)
+      prefix  = try(connection_logs.value.prefix, null)
+    }
+  }
+
   dynamic "subnet_mapping" {
     for_each = var.subnet_mapping
 
